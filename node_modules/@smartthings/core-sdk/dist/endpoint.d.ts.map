@@ -1,0 +1,1 @@
+{"version":3,"file":"endpoint.d.ts","sourceRoot":"","sources":["../src/endpoint.ts"],"names":[],"mappings":"AAAA,OAAO,EAAE,cAAc,EAAE,MAAM,mBAAmB,CAAA;AAGlD,qBAAa,QAAQ;IACR,SAAS,CAAC,MAAM,EAAE,cAAc;gBAAtB,MAAM,EAAE,cAAc;IAE5C,UAAU,CAAC,EAAE,CAAC,EAAE,MAAM,GAAG,MAAM;IAQ/B,cAAc,CAAC,EAAE,CAAC,EAAE,MAAM,GAAG,MAAM;CAOnC"}
