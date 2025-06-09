@@ -53,7 +53,7 @@ app.get('/device/:deviceId/power/:state', async (req, res) => {
   }
 });
 
-app.get('/device/all/power/:state', async (req, res) => {
+app.get('/devices/all/power/:state', async (req, res) => {
   const { state } = req.params;
 
   if (!['on', 'off'].includes(state.toLowerCase())) {
@@ -62,17 +62,25 @@ app.get('/device/all/power/:state', async (req, res) => {
 
   try {
     const devices = await client.devices.list();
-    const deviceIds = devices.map(device => device.deviceId);
 
-    for (const deviceId of deviceIds) {
-      await client.devices.executeCommand(deviceId, {
-        component: 'main',
-        capability: 'switch',
-        command: state.toLowerCase()
-      });
+    for (const device of devices) {
+      const deviceId = device.deviceId;
+      const details = await client.devices.get(deviceId);
+
+      const capabilities = details.components[0].capabilities.map(c => c.id);
+      if (capabilities.includes('switch')) {
+        console.log(`Sending ${state} to ${device.label || device.name}`);
+        await client.devices.executeCommand(deviceId, {
+          component: 'main',
+          capability: 'switch',
+          command: state.toLowerCase()
+        });
+      } else {
+        console.log(`Skipping ${device.label || device.name}, no 'switch' capability`);
+      }
     }
 
-    res.json({ success: true, message: `All devices turned ${state}` });
+    res.json({ success: true, message: `Tried to turn ${state} all compatible devices` });
   } catch (error) {
     console.error('Error executing command on all devices:', error.message);
     res.status(500).json({ error: 'Failed to send command to all devices' });
@@ -171,6 +179,23 @@ app.get('/device/all/openYoutube', async (req, res) => {
   } catch (error) {
     console.error('Error opening YouTube on all devices:', error.message);
     res.status(500).json({ error: 'Failed to open YouTube on all devices' });
+  }
+});
+
+app.get('/device/:deviceId/openYoutube', async (req, res) => {
+  const { deviceId } = req.params;
+  try {
+    await client.devices.executeCommand(deviceId, {
+      component: 'main',
+      capability: 'mediaPlayback',
+      command: 'launchApp',
+      arguments: ['YouTube']
+    });
+
+    res.json({ success: true, message: `Device ${deviceId} opened YouTube` });
+  } catch (error) {
+    console.error('Error opening YouTube:', error.message);
+    res.status(500).json({ error: 'Failed to open YouTube on device' });
   }
 });
 // Start server
